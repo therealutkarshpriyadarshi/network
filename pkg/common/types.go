@@ -79,6 +79,50 @@ func IPv4FromUint32(v uint32) IPv4Address {
 	return addr
 }
 
+// IPv6Address represents a 128-bit IPv6 address.
+type IPv6Address [16]byte
+
+// String returns the IP address in standard IPv6 format.
+func (ip IPv6Address) String() string {
+	netIP := net.IP(ip[:])
+	return netIP.String()
+}
+
+// ParseIPv6 parses a string IPv6 address.
+func ParseIPv6(s string) (IPv6Address, error) {
+	ip := net.ParseIP(s)
+	if ip == nil {
+		return IPv6Address{}, fmt.Errorf("invalid IP address: %s", s)
+	}
+	ip = ip.To16()
+	if ip == nil {
+		return IPv6Address{}, fmt.Errorf("not an IPv6 address: %s", s)
+	}
+	var addr IPv6Address
+	copy(addr[:], ip)
+	return addr, nil
+}
+
+// IsLoopback returns true if this is a loopback address (::1).
+func (ip IPv6Address) IsLoopback() bool {
+	for i := 0; i < 15; i++ {
+		if ip[i] != 0 {
+			return false
+		}
+	}
+	return ip[15] == 1
+}
+
+// IsLinkLocal returns true if this is a link-local address (fe80::/10).
+func (ip IPv6Address) IsLinkLocal() bool {
+	return ip[0] == 0xfe && (ip[1]&0xc0) == 0x80
+}
+
+// IsMulticast returns true if this is a multicast address (ff00::/8).
+func (ip IPv6Address) IsMulticast() bool {
+	return ip[0] == 0xff
+}
+
 // EtherType represents the protocol type in an Ethernet frame.
 type EtherType uint16
 
@@ -108,9 +152,14 @@ type Protocol uint8
 
 // Common protocol numbers.
 const (
-	ProtocolICMP Protocol = 1  // Internet Control Message Protocol
-	ProtocolTCP  Protocol = 6  // Transmission Control Protocol
-	ProtocolUDP  Protocol = 17 // User Datagram Protocol
+	ProtocolICMP   Protocol = 1   // Internet Control Message Protocol
+	ProtocolTCP    Protocol = 6   // Transmission Control Protocol
+	ProtocolUDP    Protocol = 17  // User Datagram Protocol
+	ProtocolIPv6   Protocol = 41  // IPv6 encapsulation
+	ProtocolICMPv6 Protocol = 58  // ICMPv6
+	ProtocolNoNext Protocol = 59  // No Next Header for IPv6
+	ProtocolFragment Protocol = 44 // IPv6 Fragment Header
+	ProtocolRouting Protocol = 43 // IPv6 Routing Header
 )
 
 // String returns a human-readable name for the protocol.
@@ -122,6 +171,16 @@ func (p Protocol) String() string {
 		return "TCP"
 	case ProtocolUDP:
 		return "UDP"
+	case ProtocolIPv6:
+		return "IPv6"
+	case ProtocolICMPv6:
+		return "ICMPv6"
+	case ProtocolNoNext:
+		return "NoNext"
+	case ProtocolFragment:
+		return "Fragment"
+	case ProtocolRouting:
+		return "Routing"
 	default:
 		return fmt.Sprintf("Unknown(%d)", uint8(p))
 	}
