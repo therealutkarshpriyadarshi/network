@@ -37,7 +37,7 @@ sudo go run ./examples/arp/main.go eth0 192.168.1.100 192.168.1.1
 sudo go run ./examples/ping/main.go 192.168.1.1
 
 # Example 4: UDP echo server
-sudo go run ./examples/udp_echo/main.go
+sudo go run ./examples/udp_echo/main.go -i eth0 -p 8080
 
 # Example 5: TCP echo server
 sudo go run ./examples/tcp_echo/main.go
@@ -63,7 +63,13 @@ This is an educational project. Current implementation status:
   - [x] ICMP error messages
   - [x] TTL handling
   - [x] Comprehensive tests and ping example
-- [ ] Phase 4: UDP
+- [x] Phase 4: UDP
+  - [x] UDP packet parsing and building
+  - [x] UDP checksum with pseudo-header
+  - [x] Port demultiplexing
+  - [x] Socket API (Bind, SendTo, RecvFrom)
+  - [x] Port allocation (ephemeral ports)
+  - [x] Comprehensive tests and UDP echo server example
 - [ ] Phase 5: TCP
   - [ ] Connection establishment (3-way handshake)
   - [ ] Data transfer
