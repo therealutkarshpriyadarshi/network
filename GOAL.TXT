@@ -1,0 +1,11 @@
+Network Protocol Stack (TCP/IP from scratch)
+Implement TCP, IP, UDP, ARP using raw sockets or virtual interfaces.
+Why it's hard:
+
+Handle packet fragmentation, reassembly, and checksums
+Implement TCP state machine (SYN, ACK, FIN, etc.)
+Congestion control algorithms (slow start, congestion avoidance)
+Reliable delivery over unreliable networks - retransmission, timeouts, flow control
+Deal with network byte order, packet parsing, and protocol layering
+
+First principles challenge: When you send data over the internet, it gets broken into packets, routed through multiple computers, possibly arriving out of order or not at all. TCP makes this look like a simple stream of bytes - building this teaches you how reliability emerges from unreliability.
