@@ -41,6 +41,9 @@ sudo go run ./examples/udp_echo/main.go -i eth0 -p 8080
 
 # Example 5: TCP echo server
 sudo go run ./examples/tcp_echo/main.go
+
+# Example 6: HTTP server
+sudo go run ./examples/http_server/main.go -i eth0 -addr 192.168.1.100 -port 8080
 ```
 
 ## Project Status
@@ -79,7 +82,13 @@ This is an educational project. Current implementation status:
   - [x] TCP state machine (11 states)
   - [x] Socket API (Listen, Accept, Connect, Send, Recv, Close)
   - [x] Comprehensive tests and TCP echo server example
-- [ ] Phase 6: Testing & optimization
+- [x] Phase 6: Testing & optimization
+  - [x] Performance benchmarks (checksum, IP, TCP, UDP)
+  - [x] Integration tests (TCP, UDP end-to-end)
+  - [x] Robustness tests (malformed packets, edge cases)
+  - [x] Stress tests (high connection count, memory leak detection)
+  - [x] HTTP server example application
+  - [x] Comprehensive documentation
 
 See [ROADMAP.md](ROADMAP.md) for detailed implementation plan.
 
@@ -117,13 +126,16 @@ network/
 │
 ├── examples/         # Example programs
 │   ├── capture/      # Packet capture example
+│   ├── arp/          # ARP resolution example
 │   ├── ping/         # Ping implementation
 │   ├── udp_echo/     # UDP echo server
-│   └── tcp_echo/     # TCP echo server
+│   ├── tcp_echo/     # TCP echo server
+│   └── http_server/  # HTTP/1.1 server
 │
 └── tests/            # Test suites
-    ├── unit/         # Unit tests
-    └── integration/  # Integration tests
+    ├── integration/  # Integration tests (TCP, UDP, stress tests)
+    ├── benchmark/    # Performance benchmarks
+    └── robustness/   # Robustness tests (malformed packets, edge cases)
 ```
 
 ## Learning Goals
@@ -187,8 +199,21 @@ go test ./pkg/tcp
 # Run integration tests
 sudo go test ./tests/integration/...
 
-# Benchmarks
-go test -bench=. ./pkg/...
+# Run benchmarks
+go test -bench=. ./tests/benchmark/...
+
+# Run robustness tests
+go test ./tests/robustness/...
+
+# Run stress tests (may take longer)
+go test -run=Stress ./tests/integration/...
+
+# Run with race detection
+go test -race ./pkg/...
+
+# Generate coverage report
+go test -coverprofile=coverage.out ./pkg/...
+go tool cover -html=coverage.out
 ```
 
 ## Debugging Tips
