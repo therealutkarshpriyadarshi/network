@@ -40,6 +40,7 @@ const (
 	OptionKindSACKPermitted  = 4  // SACK Permitted
 	OptionKindSACK           = 5  // SACK
 	OptionKindTimestamp      = 8  // Timestamp
+	OptionKindTFO            = 34 // TCP Fast Open
 )
 
 // Segment represents a TCP segment.
@@ -349,6 +350,38 @@ func BuildTimestampOption(tsVal, tsEcr uint32) []byte {
 	return opt
 }
 
+// BuildSACKPermittedOption builds a SACK Permitted option.
+func BuildSACKPermittedOption() []byte {
+	return []byte{OptionKindSACKPermitted, 2}
+}
+
+// SACKBlock represents a single SACK block.
+type SACKBlock struct {
+	LeftEdge  uint32
+	RightEdge uint32
+}
+
+// BuildSACKOption builds a SACK option with the given blocks.
+func BuildSACKOption(blocks []SACKBlock) []byte {
+	if len(blocks) == 0 || len(blocks) > 4 {
+		return nil // SACK can have at most 4 blocks
+	}
+
+	length := 2 + len(blocks)*8 // Kind + Length + blocks
+	opt := make([]byte, length)
+	opt[0] = OptionKindSACK
+	opt[1] = uint8(length)
+
+	offset := 2
+	for _, block := range blocks {
+		binary.BigEndian.PutUint32(opt[offset:offset+4], block.LeftEdge)
+		binary.BigEndian.PutUint32(opt[offset+4:offset+8], block.RightEdge)
+		offset += 8
+	}
+
+	return opt
+}
+
 // GetMSS extracts the MSS value from options, returns DefaultMSS if not found.
 func (s *Segment) GetMSS() (uint16, error) {
 	opts, err := s.ParseOptions()
@@ -364,4 +397,77 @@ func (s *Segment) GetMSS() (uint16, error) {
 	}
 
 	return DefaultMSS, nil
+}
+
+// GetWindowScale extracts the window scale value from options.
+func (s *Segment) GetWindowScale() (uint8, error) {
+	opts, err := s.ParseOptions()
+	if err != nil {
+		return 0, err
+	}
+
+	if wsData, ok := opts[OptionKindWindowScale]; ok {
+		if len(wsData) != 1 {
+			return 0, fmt.Errorf("invalid window scale option length: %d", len(wsData))
+		}
+		return wsData[0], nil
+	}
+
+	return 0, fmt.Errorf("window scale option not found")
+}
+
+// GetTimestamp extracts timestamp values from options.
+func (s *Segment) GetTimestamp() (tsVal, tsEcr uint32, err error) {
+	opts, err := s.ParseOptions()
+	if err != nil {
+		return 0, 0, err
+	}
+
+	if tsData, ok := opts[OptionKindTimestamp]; ok {
+		if len(tsData) != 8 {
+			return 0, 0, fmt.Errorf("invalid timestamp option length: %d", len(tsData))
+		}
+		tsVal = binary.BigEndian.Uint32(tsData[0:4])
+		tsEcr = binary.BigEndian.Uint32(tsData[4:8])
+		return tsVal, tsEcr, nil
+	}
+
+	return 0, 0, fmt.Errorf("timestamp option not found")
+}
+
+// GetSACKBlocks extracts SACK blocks from options.
+func (s *Segment) GetSACKBlocks() ([]SACKBlock, error) {
+	opts, err := s.ParseOptions()
+	if err != nil {
+		return nil, err
+	}
+
+	if sackData, ok := opts[OptionKindSACK]; ok {
+		if len(sackData)%8 != 0 {
+			return nil, fmt.Errorf("invalid SACK option length: %d", len(sackData))
+		}
+
+		numBlocks := len(sackData) / 8
+		blocks := make([]SACKBlock, numBlocks)
+
+		for i := 0; i < numBlocks; i++ {
+			offset := i * 8
+			blocks[i].LeftEdge = binary.BigEndian.Uint32(sackData[offset : offset+4])
+			blocks[i].RightEdge = binary.BigEndian.Uint32(sackData[offset+4 : offset+8])
+		}
+
+		return blocks, nil
+	}
+
+	return nil, fmt.Errorf("SACK option not found")
+}
+
+// HasSACKPermitted checks if the SACK Permitted option is present.
+func (s *Segment) HasSACKPermitted() bool {
+	opts, err := s.ParseOptions()
+	if err != nil {
+		return false
+	}
+	_, ok := opts[OptionKindSACKPermitted]
+	return ok
 }
