@@ -31,7 +31,7 @@ go build ./cmd/netstack
 sudo go run ./examples/capture/main.go
 
 # Example 2: ARP resolution
-sudo go run ./examples/arp/main.go
+sudo go run ./examples/arp/main.go eth0 192.168.1.100 192.168.1.1
 
 # Example 3: Ping (ICMP)
 sudo go run ./examples/ping/main.go 192.168.1.1
@@ -48,8 +48,12 @@ sudo go run ./examples/tcp_echo/main.go
 This is an educational project. Current implementation status:
 
 - [x] Project structure
-- [ ] Phase 1: Raw sockets & packet capture
-- [ ] Phase 2: Ethernet & ARP
+- [x] Phase 1: Raw sockets & packet capture
+- [x] Phase 2: Ethernet & ARP
+  - [x] Ethernet frame parsing and building
+  - [x] ARP request/reply handling
+  - [x] ARP cache with expiration
+  - [x] Comprehensive tests and examples
 - [ ] Phase 3: IP & ICMP (ping)
 - [ ] Phase 4: UDP
 - [ ] Phase 5: TCP
