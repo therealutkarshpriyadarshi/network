@@ -70,12 +70,15 @@ This is an educational project. Current implementation status:
   - [x] Socket API (Bind, SendTo, RecvFrom)
   - [x] Port allocation (ephemeral ports)
   - [x] Comprehensive tests and UDP echo server example
-- [ ] Phase 5: TCP
-  - [ ] Connection establishment (3-way handshake)
-  - [ ] Data transfer
-  - [ ] Reliability (retransmission)
-  - [ ] Flow control
-  - [ ] Congestion control
+- [x] Phase 5: TCP
+  - [x] Connection establishment (3-way handshake)
+  - [x] Data transfer (send/receive buffers)
+  - [x] Reliability (retransmission with RTO)
+  - [x] Flow control (sliding window)
+  - [x] Congestion control (slow start, congestion avoidance, fast retransmit/recovery)
+  - [x] TCP state machine (11 states)
+  - [x] Socket API (Listen, Accept, Connect, Send, Recv, Close)
+  - [x] Comprehensive tests and TCP echo server example
 - [ ] Phase 6: Testing & optimization
 
 See [ROADMAP.md](ROADMAP.md) for detailed implementation plan.
