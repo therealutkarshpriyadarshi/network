@@ -54,7 +54,15 @@ This is an educational project. Current implementation status:
   - [x] ARP request/reply handling
   - [x] ARP cache with expiration
   - [x] Comprehensive tests and examples
-- [ ] Phase 3: IP & ICMP (ping)
+- [x] Phase 3: IP & ICMP (ping)
+  - [x] IPv4 packet parsing and building
+  - [x] IP header checksum verification
+  - [x] IP fragmentation and reassembly
+  - [x] Routing table with longest prefix match
+  - [x] ICMP echo request/reply (ping)
+  - [x] ICMP error messages
+  - [x] TTL handling
+  - [x] Comprehensive tests and ping example
 - [ ] Phase 4: UDP
 - [ ] Phase 5: TCP
   - [ ] Connection establishment (3-way handshake)
