@@ -186,10 +186,7 @@ func sendPing(fd int, iface *net.Interface, srcIP, dstIP common.IPv4Address, id,
 		Payload:     ipData,
 	}
 
-	frameData, err := ethFrame.Serialize()
-	if err != nil {
-		return fmt.Errorf("failed to serialize frame: %w", err)
-	}
+	frameData := ethFrame.Serialize()
 
 	// Send packet
 	err = syscall.Sendto(fd, frameData, 0, &syscall.SockaddrLinklayer{

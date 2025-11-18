@@ -87,8 +87,6 @@ func Parse(data []byte) (*Packet, error) {
 		return nil, fmt.Errorf("invalid fixed bit")
 	}
 
-	offset := 1
-
 	if pkt.HeaderForm == 1 {
 		// Long header
 		return parseLongHeader(data)
