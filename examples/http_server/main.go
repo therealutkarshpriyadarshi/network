@@ -99,7 +99,10 @@ func main() {
 	}
 
 	// Parse listen address
-	addr := common.ParseIPv4(*listenAddr)
+	addr, err := common.ParseIPv4(*listenAddr)
+	if err != nil {
+		log.Fatalf("Invalid listen address: %v", err)
+	}
 
 	// Create TCP socket
 	socket := tcp.NewSocket(addr, uint16(*listenPort))
@@ -107,7 +110,7 @@ func main() {
 	// Set up send function
 	socket.SetSendFunc(func(seg *tcp.Segment, srcIP, dstIP common.IPv4Address) error {
 		log.Printf("Sending segment: flags=%s seq=%d ack=%d len=%d",
-			formatFlags(seg.Flags), seg.SequenceNumber, seg.AckNumber, len(seg.Payload))
+			formatFlags(seg.Flags), seg.SequenceNumber, seg.AckNumber, len(seg.Data))
 		// In a real implementation, this would send via the network stack
 		return nil
 	})

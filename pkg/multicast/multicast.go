@@ -6,6 +6,8 @@ import (
 	"net"
 
 	"github.com/therealutkarshpriyadarshi/network/pkg/common"
+	"golang.org/x/net/ipv4"
+	"golang.org/x/net/ipv6"
 )
 
 // IPv4 multicast address ranges
@@ -239,30 +241,38 @@ func NewMulticastSocket(network, address string) (*MulticastSocket, error) {
 
 // JoinIPv4Group joins an IPv4 multicast group.
 func (s *MulticastSocket) JoinIPv4Group(iface *net.Interface, group net.IP) error {
-	packetConn := s.conn
-	if pc, ok := packetConn.(*net.UDPConn); ok {
-		return pc.JoinGroup(iface, &net.UDPAddr{IP: group})
+	if udpConn, ok := s.conn.(*net.UDPConn); ok {
+		p := ipv4.NewPacketConn(udpConn)
+		return p.JoinGroup(iface, &net.UDPAddr{IP: group})
 	}
 	return fmt.Errorf("not a UDP connection")
 }
 
 // JoinIPv6Group joins an IPv6 multicast group.
 func (s *MulticastSocket) JoinIPv6Group(iface *net.Interface, group net.IP) error {
-	return s.JoinIPv4Group(iface, group) // Same method for both
+	if udpConn, ok := s.conn.(*net.UDPConn); ok {
+		p := ipv6.NewPacketConn(udpConn)
+		return p.JoinGroup(iface, &net.UDPAddr{IP: group})
+	}
+	return fmt.Errorf("not a UDP connection")
 }
 
 // LeaveIPv4Group leaves an IPv4 multicast group.
 func (s *MulticastSocket) LeaveIPv4Group(iface *net.Interface, group net.IP) error {
-	packetConn := s.conn
-	if pc, ok := packetConn.(*net.UDPConn); ok {
-		return pc.LeaveGroup(iface, &net.UDPAddr{IP: group})
+	if udpConn, ok := s.conn.(*net.UDPConn); ok {
+		p := ipv4.NewPacketConn(udpConn)
+		return p.LeaveGroup(iface, &net.UDPAddr{IP: group})
 	}
 	return fmt.Errorf("not a UDP connection")
 }
 
 // LeaveIPv6Group leaves an IPv6 multicast group.
 func (s *MulticastSocket) LeaveIPv6Group(iface *net.Interface, group net.IP) error {
-	return s.LeaveIPv4Group(iface, group) // Same method for both
+	if udpConn, ok := s.conn.(*net.UDPConn); ok {
+		p := ipv6.NewPacketConn(udpConn)
+		return p.LeaveGroup(iface, &net.UDPAddr{IP: group})
+	}
+	return fmt.Errorf("not a UDP connection")
 }
 
 // SendTo sends data to a multicast address.
